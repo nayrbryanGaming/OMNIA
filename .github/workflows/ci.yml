@@ -1,0 +1,33 @@
+name: OMNIA Production CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.x
+        cache: 'npm'
+        
+    - name: Install Monorepo Dependencies
+      run: npm ci
+
+    - name: Lint Core Engine
+      run: npm run lint -w packages/core
+
+    - name: Security Audit (npm audit)
+      run: npm audit --audit-level=high
+
+    - name: Vercel Preview Deployment
+      if: github.event_name == 'pull_request'
+      run: npx vercel pull --yes --token ${{ secrets.VERCEL_TOKEN }}
