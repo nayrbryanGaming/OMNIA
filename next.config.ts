@@ -12,32 +12,7 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  experimental: {
-    // serverActions is true by default in Next.js 14+; adding other possible experimental tags if needed
-  },
-  webpack: (config) => {
-    config.optimization.splitChunks = {
-      chunks: 'all',
-      minSize: 20000,
-      maxSize: 70000,
-    };
-    return config;
-  },
-  async redirects() {
-    return [
-      {
-        source: '/discussion',
-        destination: '/chat',
-        permanent: false,
-      },
-      {
-        source: '/(.*)',
-        has: [{ type: 'query', key: 'discussion' }],
-        destination: '/chat',
-        permanent: false,
-      }
-    ];
-  },
+  // Ensure that we don't use Turbopack incorrectly during build if it's causing issues
 };
 
 export default nextConfig;
