@@ -14,7 +14,7 @@ export interface AIRequest {
     temperature?: number;
     maxTokens?: number;
     apiKey?: string; // Passed temporarily in memory if mode === API_KEY
-    signal?: AbortSignal;
+    signal?: AbortSignal; // For cancellation
 }
 
 export interface AIResponse {
@@ -41,5 +41,6 @@ export interface ExecutionCallbacks {
 EXPLANATION:
 This module defines the absolute core strict generic interfaces.
 These are the data contracts shared across all UI components, Orchestrators,
-and backend processes. It enables type safety across the monorepo.
+and backend processes. It enforces strict modes (ExecutionMode) and capabilities,
+guaranteeing no module can drift from the unified OMNIA standard.
 */

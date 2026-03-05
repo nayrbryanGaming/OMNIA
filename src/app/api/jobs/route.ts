@@ -1,66 +1,70 @@
-// MODULE 4 — BACKEND API 
+// MODULE 4 — BACKEND API (Next.js Edge Route)
 // Path: src/app/api/jobs/route.ts
-
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
-// Simple Authorization Check (JWT or Api Key)
-const verifyAuth = (req: NextRequest) => {
-  const token = req.headers.get('Authorization')?.split('Bearer ')[1];
-  if (!token) throw new Error('Unauthorized');
-  return { userId: 'user_123', tier: 'FREE' };
-};
+// Pseudo DB for Job Polling
+const JOB_DB = new Map<string, any>();
 
-export async function POST(req: NextRequest) {
+async function verifyAuth(request: Request) {
+  // Auth skeleton: Expects a Bearer token or session cookie
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer OMNIA_')) {
+    throw new Error('Unauthorized');
+  }
+  return { userId: 'usr_2026', tier: 'FREE_CLOUD' };
+}
+
+export async function POST(request: Request) {
   try {
-    const user = verifyAuth(req);
-    const body = await req.json();
+    const user = await verifyAuth(request);
+    const body = await request.json();
 
-    // Validate Job schema
-    if (!body.model || !body.messages) {
-      return NextResponse.json({ error: 'Invalid Job Schema' }, { status: 400 });
-    }
+    // 1. Job Submission
+    const jobId = crypto.randomUUID();
 
-    // Submit Job to Upstash Redis (Queue)
-    const jobId = `job_${crypto.randomUUID()}`;
+    // 2. Queue placement logic (Mock Upstash Redis here)
+    JOB_DB.set(jobId, { status: 'QUEUED', user: user.userId, request: body });
 
-    // In production, this would be an actual Redis push:
-    // await redis.lpush('omnia:jobs:queue', JSON.stringify({ id: jobId, user: user.userId, ...body }));
-
-    // For Edge Route speed, we immediately return the tracking ID to the frontend
+    // 3. Return Job ID immediately to avoid Vercel 10s timeout
+    return NextResponse.json({ jobId, status: 'QUEUED' }, { status: 202 });
+  } catch (e: any) {
+    // 4. Error Normalization
     return NextResponse.json({
-      status: 'QUEUED',
-      jobId,
-      position: user.tier === 'PREMIUM' ? 1 : 45 // Example priority response
-    }, { status: 202 });
-
-  } catch (error: unknown) {
-    if (error instanceof Error && error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+      error: {
+        code: e.message === 'Unauthorized' ? 401 : 500,
+        message: e.message || 'Internal Queue Error'
+      }
+    }, { status: 400 });
   }
 }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const jobId = searchParams.get('id');
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const jobId = searchParams.get('jobId');
 
-  if (!jobId) return NextResponse.json({ error: 'Missing Job ID' }, { status: 400 });
+  // 5. Job Status Polling
+  if (!jobId || !JOB_DB.has(jobId)) {
+    return NextResponse.json({ error: { code: 404, message: "Job not found" } }, { status: 404 });
+  }
 
-  // In production: fetch job status from Redis/Postgres
-  // const job = await redis.hget(`omnia:jobs:${jobId}`);
+  const job = JOB_DB.get(jobId);
 
-  return NextResponse.json({
-    id: jobId,
-    status: 'COMPLETED',
-    response: "This is a dummy response from the OMNIA Cloud Worker."
-  });
+  // Simulate resolution
+  if (job.status === 'QUEUED') {
+    job.status = 'COMPLETED';
+    job.result = { content: "This is a deferred cloud response." };
+  }
+
+  return NextResponse.json(job);
 }
 
 /*
 EXPLANATION:
-This Vercel Edge function handles incoming CLOUD requests.
-It is extremely lightweight, only checking auth and pushing to a Redis queue.
-It never blocks waiting for the GPU to finish. 
-The client long-polls or uses SSE on a separate route to get results.
+This module demonstrates the async polling architecture required for Vercel Edge.
+Long-running AI jobs CANNOT hold the connection open.
+The client POSTs a job, immediately receives a 202 Accepted with a JobId, 
+and then GET polls this endpoint to retrieve the result.
+Auth headers are validated at the Edge.
 */
