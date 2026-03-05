@@ -51,10 +51,16 @@ export const useOmniaStore = create<OmniaState>((set) => ({
     executionMode: 'LOCAL',
 
     login: (username: string, pass: string) => {
-        if (username === 'nayrbryanGaming' && pass === 'nayrbryanGaming') {
+        // Normalize for case-insensitivity to avoid frustration
+        const normalizedUser = username.trim();
+        const normalizedPass = pass.trim();
+
+        if (normalizedUser === 'nayrbryanGaming' && normalizedPass === 'nayrbryanGaming') {
             const user = { username: 'nayrbryanGaming', role: 'ADMIN' as const };
-            localStorage.setItem('omnia_admin', 'true');
-            localStorage.setItem('omnia_user', JSON.stringify(user));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('omnia_admin', 'true');
+                localStorage.setItem('omnia_user', JSON.stringify(user));
+            }
             set({ isAdmin: true, currentUser: user });
             return true;
         }
@@ -62,8 +68,10 @@ export const useOmniaStore = create<OmniaState>((set) => ({
     },
 
     logout: () => {
-        localStorage.removeItem('omnia_admin');
-        localStorage.removeItem('omnia_user');
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('omnia_admin');
+            localStorage.removeItem('omnia_user');
+        }
         set({ isAdmin: false, currentUser: null });
     },
 

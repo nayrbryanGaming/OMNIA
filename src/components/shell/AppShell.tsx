@@ -5,7 +5,8 @@ import {
     Menu, X, Sparkles, Cpu, Cloud, Zap, Key,
     LayoutGrid, MessageSquare, Code, Image,
     BarChart3, Settings, ShieldCheck, Music,
-    Video, FileText, ChevronRight, User, LogOut
+    Video, FileText, ChevronRight, User, LogOut,
+    ArrowRight
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { clsx, type ClassValue } from 'clsx';
