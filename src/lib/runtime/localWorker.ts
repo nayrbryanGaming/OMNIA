@@ -23,7 +23,7 @@ export class LocalExecutionWorker {
         if (this.isInitialized) return;
 
         // 1. Hardware Validate
-        const memoryScore = navigator.deviceMemory || 8; // GB
+        const memoryScore = (navigator as any).deviceMemory || 8; // GB
         if (memoryScore < (this.limits.maxVramMB / 1024)) {
             throw new Error(`Insufficient System RAM. Required: ${this.limits.maxVramMB}MB`);
         }

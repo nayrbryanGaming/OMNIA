@@ -31,26 +31,45 @@ export const CATEGORY_MODELS: Record<AICategory, string[]> = {
     File: ['Claude-Project-Analyzer', 'PDF-Expert-V2', 'DocuSearch-2026']
 };
 
+// Basic persistence for the session
+const getInitialState = () => {
+    if (typeof window === 'undefined') return { isAdmin: false, currentUser: null };
+    const savedAdmin = localStorage.getItem('omnia_admin');
+    const savedUser = localStorage.getItem('omnia_user');
+    return {
+        isAdmin: savedAdmin === 'true',
+        currentUser: savedUser ? JSON.parse(savedUser) : null,
+    };
+};
+
+const initialState = getInitialState();
+
 export const useOmniaStore = create<OmniaState>((set) => ({
-    isAdmin: false,
-    currentUser: null,
+    ...initialState,
     selectedCategory: 'Reasoning',
     selectedModel: CATEGORY_MODELS['Reasoning'][0],
     executionMode: 'LOCAL',
 
     login: (username: string, pass: string) => {
         if (username === 'nayrbryanGaming' && pass === 'nayrbryanGaming') {
-            set({ isAdmin: true, currentUser: { username: 'nayrbryanGaming', role: 'ADMIN' } });
+            const user = { username: 'nayrbryanGaming', role: 'ADMIN' as const };
+            localStorage.setItem('omnia_admin', 'true');
+            localStorage.setItem('omnia_user', JSON.stringify(user));
+            set({ isAdmin: true, currentUser: user });
             return true;
         }
         return false;
     },
 
-    logout: () => set({ isAdmin: false, currentUser: null }),
+    logout: () => {
+        localStorage.removeItem('omnia_admin');
+        localStorage.removeItem('omnia_user');
+        set({ isAdmin: false, currentUser: null });
+    },
 
     setCategory: (cat) => set({
         selectedCategory: cat,
-        selectedModel: CATEGORY_MODELS[cat][0] // Auto-switch to the first model of the new category
+        selectedModel: CATEGORY_MODELS[cat][0]
     }),
 
     setModel: (selectedModel) => set({ selectedModel }),

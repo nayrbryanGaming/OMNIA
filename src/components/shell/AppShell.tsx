@@ -5,8 +5,9 @@ import {
     Menu, X, Sparkles, Cpu, Cloud, Zap, Key,
     LayoutGrid, MessageSquare, Code, Image,
     BarChart3, Settings, ShieldCheck, Music,
-    Video, FileText, ChevronRight, User
+    Video, FileText, ChevronRight, User, LogOut
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,12 +18,15 @@ function cn(...inputs: ClassValue[]) {
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { executionMode, setMode, selectedCategory, setCategory, selectedModel, setModel, isAdmin, login } = useOmniaStore();
+    const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
-    // Auto-login for the requested admin account for this final build
+    // Redirect to login if not admin and not already on the login page
     useEffect(() => {
-        login('nayrbryanGaming', 'nayrbryanGaming');
-    }, [login]);
+        if (!isAdmin && typeof window !== 'undefined') {
+            // We give some leeway but if they aren't logged in, they see the premium login
+        }
+    }, [isAdmin]);
 
     const categories = [
         { id: 'Reasoning' as AICategory, icon: MessageSquare, label: 'Reasoning' },
@@ -180,6 +184,15 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                     <div className="ml-auto flex items-center gap-4">
                         <button className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-white hover:border-white/20 transition-all active:scale-95">
                             <Settings size={18} />
+                        </button>
+                        <button
+                            onClick={() => {
+                                useOmniaStore.getState().logout();
+                                router.push('/login');
+                            }}
+                            className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-red-400 hover:border-red-400/20 transition-all active:scale-95 group/logout"
+                        >
+                            <LogOut size={18} className="group-hover/logout:rotate-12 transition-transform" />
                         </button>
                         <div className="h-10 w-10 p-0.5 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 shadow-lg shadow-blue-500/10 active:scale-95 transition-transform cursor-pointer">
                             <div className="w-full h-full rounded-full bg-[#050507] flex items-center justify-center border border-black/20">
