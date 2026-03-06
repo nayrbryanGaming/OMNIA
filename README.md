@@ -1,41 +1,36 @@
-# OMNIA
+# OMNIA: THE SOVEREIGN INTELLIGENCE SUBSTRATE
 
-The unified intelligence layer.
+**Building the unified interface for the post-AGI era.**
 
-OMNIA is an open-source, sovereign, and modular platform designed to orchestrate all AI models, modalities, and execution environments through a single, highly optimized interface.
+Intelligence is the base layer of the 21st century. Until now, it has been fragmented, siloed, and rented. OMNIA is the absolute command layer that returns agency to the individual. No compromise. No vendor lock-in. No central authority.
 
-## Architecture
+## The Architecture of Agency
 
-Our foundation relies on strict decoupling of interface, orchestration, and compute:
-- **Universal Orchestration**: Fluid routing across local self-hosted models, shared cloud queues, premium APIs, and user-provided API keys.
-- **Modality Agnostic**: Unified control plane for text, image, audio, and video generation.
-- **Local-First Trust**: By default, compute is sovereign. Data never leaves the client unless explicitly routed to external APIs.
+OMNIA is not a "wrapper". It is a sovereign orchestration engine built for 2026-level production scale:
+
+- **Universal Orchestrator (Module 2)**: Rule-based intent classification and fluid routing across heterogeneous compute nodes.
+- **Micro-Kernel Plugin System (Module 3)**: Hot-pluggable adapters for any LLM, Diffusion, or Audio modality.
+- **Sovereign Local Runtime (Module 6)**: Hardware-accelerated local inference via WebGPU with strict process isolation and resource boundaries.
+- **Edge-First Control Plane (Module 4)**: Asynchronous job polling optimized for Vercel Edge, bypassing standard serverless timeouts.
+
+## The Vision
+
+We believe that compute should be as accessible as electricity and as private as thought. OMNIA is the substrate that makes this possible.
+
+- **Local-First by Default**: Your data never leaves your hardware unless you explicitly authorize a routing shift.
+- **Model Neutrality**: One interface to rule them all. Switch between local Llama, cloud Grok, or proprietary GPT with zero friction.
+- **Quantum Glassmorphism**: A design language built for focus, speed, and high-fidelity interaction.
 
 ## Deployment
 
-OMNIA is architected for edge deployment on Vercel with zero cold-start overhead for the core UI.
-
 ```bash
-# Install dependencies
+# Initialize the Sovereign Engine
 npm install
-
-# Run development server
-npm run dev
-
-# Build for production
 npm run build
 ```
 
-## System Requirements
-
-- Node.js 20+
-- Vercel CLI (for deployment)
-- Optional: Required hardware for local inference capabilities (16GB RAM minimum for 7B parameter models).
-
-## Security & Privacy
-
-OMNIA maintains a strict client-side boundary for API keys. We do not store, log, or proxy your credentials through our backend unless explicitly configured for shared cloud features. All proprietary API communication happens directly from the client to the provider or via secure serverless functions.
+[Access the Sovereign Core](https://omnia-a-six-tau.vercel.app)
 
 ---
 
-**OMNIA Foundation** | Distributed under Apache 2.0.
+**OMNIA Foundation** | *Sovereignty or Oblivion.* | Distributed under Apache 2.0.
