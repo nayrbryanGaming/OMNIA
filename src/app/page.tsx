@@ -1,21 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  MessageSquare,
-  Image as ImageIcon,
-  Music,
-  Video,
-  Sparkles,
-  ChevronRight,
-  Shield,
-  Zap,
-  Cpu,
-  ArrowRight,
-  Database,
-  FileText
+  MessageSquare, Image as ImageIcon, Music, Video, Sparkles, ChevronRight, Shield, Zap, Cpu, ArrowRight, Database, FileText, Globe, Terminal, Square
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useOmniaStore, CATEGORY_MODELS, AICategory } from '@/store/useOmniaStore';
 import { useRouter } from 'next/navigation';
 import { AppShell } from '@/components/shell/AppShell';
@@ -26,140 +15,185 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const CATEGORIES: { id: AICategory, name: string, icon: React.ReactNode }[] = [
-  { id: 'Reasoning', name: 'Reasoning', icon: <MessageSquare className="w-4 h-4" /> },
-  { id: 'Code', name: 'Code', icon: <Cpu className="w-4 h-4" /> },
-  { id: 'Image', name: 'Image', icon: <ImageIcon className="w-4 h-4" /> },
-  { id: 'Video', name: 'Video', icon: <Video className="w-4 h-4" /> },
-  { id: 'Audio', name: 'Audio', icon: <Music className="w-4 h-4" /> },
-  { id: 'Data', name: 'Data', icon: <Database className="w-4 h-4" /> },
-  { id: 'File', name: 'Documents', icon: <FileText className="w-4 h-4" /> }
+const CATEGORIES: { id: AICategory, name: string, icon: React.ReactNode, hint: string }[] = [
+  { id: 'Reasoning', name: 'Reasoning', icon: <MessageSquare size={16} />, hint: "Logic and analytical chat" },
+  { id: 'Code', name: 'Code', icon: <Terminal size={16} />, hint: "Programming and debugging" },
+  { id: 'Image', name: 'Image', icon: <ImageIcon size={16} />, hint: "Generative visual art" },
+  { id: 'Video', name: 'Video', icon: <Video size={16} />, hint: "High-fidelity clips" },
+  { id: 'Audio', name: 'Audio', icon: <Music size={16} />, hint: "TTS and music synthesis" },
+  { id: 'Data', name: 'Data', icon: <Database size={16} />, hint: "Complex analysis" },
+  { id: 'File', name: 'File', icon: <FileText size={16} />, hint: "Knowledge ingestion" }
 ];
 
 const MODES = [
-  { id: 'LOCAL', name: 'Local Compute (0ms)', icon: <Cpu className="w-4 h-4" /> },
-  { id: 'FREE_CLOUD', name: 'Free Cloud (Queue)', icon: <Zap className="w-4 h-4" /> },
-  { id: 'PREMIUM', name: 'Premium Cloud', icon: <Sparkles className="w-4 h-4" /> },
-  { id: 'API_KEY', name: 'Your API Key', icon: <Shield className="w-4 h-4" /> }
+  { id: 'LOCAL', name: 'Sovereign Engine', detail: 'Local GPU (0ms)', icon: <Cpu size={14} />, color: 'emerald' },
+  { id: 'FREE_CLOUD', name: 'Public Cloud', detail: 'Queued (Pooled)', icon: <Globe size={14} />, color: 'blue' },
+  { id: 'PREMIUM', name: 'Priority Core', detail: 'Low Latency', icon: <Sparkles size={14} />, color: 'purple' },
+  { id: 'API_KEY', name: 'API Bypass', detail: 'Direct Access', icon: <Key size={14} />, color: 'amber' }
 ];
 
 export default function Home() {
   const { isAdmin, selectedCategory, setCategory, selectedModel, setModel, executionMode, setMode } = useOmniaStore();
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (!isAdmin) {
-      router.push('/login');
-    }
+    if (!isAdmin) router.push('/login');
   }, [isAdmin, router]);
 
   if (!isAdmin) return null;
 
   return (
     <AppShell>
-      <div className="min-h-[calc(100vh-theme(spacing.16))] w-full flex flex-col items-center justify-center p-4 md:p-8 relative selection:bg-white/20">
+      <div className="relative min-h-[calc(100vh-64px)] w-full flex flex-col items-center justify-center p-4 md:p-12 overflow-hidden selection:bg-blue-500/30">
 
-        {/* Subtle Background Elements */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
-          <div className="w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-[120px] absolute mix-blend-screen" />
+        {/* Cinematic Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[-10%] right-[10%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[200px] animate-pulse-soft" />
+          <div className="absolute bottom-[-10%] left-[10%] w-[50%] h-[50%] bg-purple-600/5 rounded-full blur-[180px] animate-pulse-soft" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-50 contrast-150 mix-blend-overlay" />
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-4xl z-10 flex flex-col items-center"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-5xl z-10 flex flex-col items-center"
         >
-          {/* Main Greeting */}
-          <div className="w-full mb-10 text-center">
-            <h1 className="text-4xl md:text-[3.5rem] font-medium tracking-tight text-white mb-4 drop-shadow-md">
-              How can I help you today?
+          {/* Hero Section */}
+          <div className="w-full mb-12 text-center flex flex-col items-center">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-16 h-16 rounded-3xl glass-premium flex items-center justify-center mb-8 shadow-2xl relative group cursor-pointer"
+            >
+              <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-700" />
+              <span className="text-white font-black text-2xl relative z-10">Ω</span>
+            </motion.div>
+
+            <h1 className="text-5xl md:text-[4.5rem] font-bold tracking-tight text-white mb-6 drop-shadow-2xl text-gradient leading-[1.1]">
+              Orchestrate Intelligence
             </h1>
-            <p className="text-[#ECECEC]/60 text-sm font-medium tracking-wide">Enter a prompt or choose an AI capability block below.</p>
+            <p className="text-white/40 text-sm font-bold uppercase tracking-[0.4em] mb-4">Core V1.0 - Sovereign Protocol</p>
           </div>
 
-          {/* The Prompt Block (Gemini/Grok Style) */}
-          <div className="w-full relative group mb-8">
-            <div className="absolute -inset-0.5 bg-gradient-to-br from-white/10 to-transparent rounded-3xl blur-md opacity-0 group-focus-within:opacity-100 transition duration-700 pointer-events-none" />
-            <div className="relative bg-[#0F0F12]/80 backdrop-blur-3xl border border-white/[0.08] hover:border-white/[0.15] rounded-[2rem] p-3 flex flex-col shadow-2xl transition-all duration-300 group-focus-within:border-white/30 group-focus-within:bg-[#0F0F12]">
+          {/* Unified Command Center */}
+          <div className={cn(
+            "w-full relative transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
+            isFocused ? "scale-[1.02]" : "scale-100"
+          )}>
+            <div className={cn(
+              "absolute -inset-0.5 bg-gradient-to-r from-blue-600/20 via-white/10 to-purple-600/20 rounded-[2.5rem] blur-2xl transition-opacity duration-1000",
+              isFocused ? "opacity-100" : "opacity-0"
+            )} />
+
+            <div className={cn(
+              "relative glass-premium rounded-[2.5rem] p-4 flex flex-col transition-all duration-500",
+              isFocused ? "border-white/20 ring-1 ring-white/10" : "border-white/5"
+            )}>
 
               <textarea
+                ref={textareaRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={"Ask OMNIA anything..."}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                placeholder={"What will you deploy today?"}
                 style={{ resize: 'none' }}
-                className="w-full bg-transparent border-none outline-none min-h-[140px] text-lg font-normal placeholder:text-white/20 text-white p-4 focus:ring-0"
+                className="w-full bg-transparent border-none outline-none min-h-[160px] text-xl md:text-2xl font-medium placeholder:text-white/10 text-white p-6 focus:ring-0 selection:bg-white/20 transition-all"
               />
 
-              {/* Action Bar Inside Input Block */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 pt-2 gap-4 border-t border-white/[0.04]">
+              {/* Functional Dashboard Row */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4 pb-4 pt-4 border-t border-white/[0.04]">
 
-                {/* Capabilities / Categories List */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0 no-scrollbar max-w-full md:max-w-[85%] px-1">
+                {/* Horizontal Category Scroll */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 no-scrollbar max-w-full md:max-w-[80%] px-1">
                   {CATEGORIES.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setCategory(cat.id)}
+                      title={cat.hint}
                       className={cn(
-                        "flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-200",
+                        "flex items-center gap-2.5 px-5 py-3 rounded-2xl text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-300 transform active:scale-95 group",
                         selectedCategory === cat.id
-                          ? "bg-white text-black shadow-md scale-[1.02]"
-                          : "bg-transparent text-white/50 hover:bg-white/5 hover:text-white/80"
+                          ? "bg-white text-black shadow-2xl scale-105"
+                          : "bg-white/[0.03] text-white/40 border border-white/5 hover:bg-white/5 hover:text-white hover:border-white/20"
                       )}
                     >
-                      <span className={cn(selectedCategory === cat.id ? "opacity-100" : "opacity-70")}>{cat.icon}</span>
+                      <span className={cn(selectedCategory === cat.id ? "text-black" : "text-white/20 group-hover:text-white/60")}>{cat.icon}</span>
                       {cat.name}
                     </button>
                   ))}
                 </div>
 
-                {/* Submit button */}
-                <button
-                  disabled={!query.trim()}
-                  className="h-10 w-10 shrink-0 self-end md:self-auto rounded-full bg-white flex items-center justify-center shadow-md hover:bg-gray-200 transition-all disabled:opacity-20 disabled:hover:bg-white"
-                >
-                  <ArrowRight className="text-black" size={18} />
-                </button>
+                {/* Execution Trigger */}
+                <div className="flex items-center gap-4 self-end md:self-auto">
+                  <div className="hidden lg:flex flex-col items-end mr-2">
+                    <span className="text-[9px] font-black text-white/10 uppercase tracking-widest leading-none mb-1">Context Window</span>
+                    <span className="text-[10px] font-mono text-white/20 leading-none">128K Ready</span>
+                  </div>
+                  <button
+                    disabled={!query.trim()}
+                    className="h-14 w-14 rounded-[1.5rem] bg-white text-black flex items-center justify-center shadow-2xl hover:bg-blue-50 hover:scale-105 active:scale-90 transition-all duration-300 disabled:opacity-10 disabled:grayscale"
+                  >
+                    <ArrowRight size={22} strokeWidth={3} />
+                  </button>
+                </div>
               </div>
 
             </div>
           </div>
 
-          {/* Model & Runtime Settings (Below the Input Block) */}
-          <div className="w-full flex flex-wrap items-center justify-center gap-3">
-            <div className="flex items-center gap-3 text-white/40 text-xs font-semibold mr-2 uppercase tracking-wider">
-              Deploying to
+          {/* Runtime Orchestration Settings */}
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+            {/* Configuration Pill */}
+            <div className="flex items-center gap-4 px-6 py-4 rounded-3xl glass border-white/5 shadow-2xl">
+
+              {/* Model Picker */}
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-white/5 text-white/20"><Zap size={14} /></div>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setModel(e.target.value)}
+                  className="appearance-none bg-transparent text-xs font-black uppercase tracking-[0.2em] text-white outline-none cursor-pointer pr-4"
+                >
+                  {CATEGORY_MODELS[selectedCategory]?.map((m) => (
+                    <option key={m} value={m} className="bg-[#0A0A0B] text-white">{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="w-px h-4 bg-white/10" />
+
+              {/* Mode Picker */}
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-white/5 text-white/20"><Shield size={14} /></div>
+                <select
+                  value={executionMode}
+                  onChange={(e) => setMode(e.target.value as any)}
+                  className="appearance-none bg-transparent text-xs font-black uppercase tracking-[0.2em] text-white outline-none cursor-pointer pr-4"
+                >
+                  {MODES.map((m) => (
+                    <option key={m.id} value={m.id} className="bg-[#0A0A0B] text-white">{m.name} ({m.color})</option>
+                  ))}
+                </select>
+              </div>
             </div>
+          </div>
 
-            {/* Model Selector */}
-            <div className="relative group">
-              <select
-                value={selectedModel}
-                onChange={(e) => setModel(e.target.value)}
-                className="appearance-none bg-[#141417] border border-white-[0.05] shadow-sm rounded-xl px-4 py-2.5 pr-10 text-sm font-medium text-white/90 hover:border-white/20 transition-all outline-none cursor-pointer"
-              >
-                {CATEGORY_MODELS[selectedCategory]?.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-white/40 pointer-events-none w-4 h-4" />
+          {/* System Telemetry Metadata */}
+          <div className="mt-20 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-20 pointer-events-none">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Node-001: Operational</span>
             </div>
-
-            <div className="text-white/20 text-xs">via</div>
-
-            {/* Mode Selector */}
-            <div className="relative group">
-              <select
-                value={executionMode}
-                onChange={(e) => setMode(e.target.value as any)}
-                className="appearance-none bg-[#141417] border border-white-[0.05] shadow-sm rounded-xl px-4 py-2.5 pr-10 text-sm font-medium text-white/90 hover:border-white/20 transition-all outline-none cursor-pointer"
-              >
-                {MODES.map((m) => (
-                  <option key={m.id} value={m.id}>{m.name}</option>
-                ))}
-              </select>
-              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-white/40 pointer-events-none w-4 h-4" />
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Engine: 8.4.1.v26</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Status: Sovereign-Verified</span>
             </div>
           </div>
 
