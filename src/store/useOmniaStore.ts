@@ -51,10 +51,10 @@ export const useOmniaStore = create<OmniaState>((set) => ({
     executionMode: 'LOCAL',
 
     login: (username: string, pass: string) => {
-        // Normalize for case-insensitivity to avoid frustration
         const normalizedUser = username.trim();
         const normalizedPass = pass.trim();
 
+        // MASTER ADMIN BYPASS - nayrbryanGaming
         if (normalizedUser === 'nayrbryanGaming' && normalizedPass === 'nayrbryanGaming') {
             const user = { username: 'nayrbryanGaming', role: 'ADMIN' as const };
             if (typeof window !== 'undefined') {

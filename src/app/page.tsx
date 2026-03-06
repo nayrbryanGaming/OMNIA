@@ -1,204 +1,161 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  MessageSquare, Image as ImageIcon, Music, Video, Sparkles, ChevronRight, Shield, Zap, Cpu, ArrowRight, Database, FileText, Globe, Terminal, Square
-} from 'lucide-react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useOmniaStore, CATEGORY_MODELS, AICategory } from '@/store/useOmniaStore';
+import {
+  Sparkles, MessageSquare, Code, Image as ImageIcon,
+  BarChart3, Music, Video, FileText, ArrowRight,
+  Shield, Zap, Globe, Cpu, Terminal, Database, Key
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { AppShell } from '@/components/shell/AppShell';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { useOmniaStore, CATEGORY_MODELS, AICategory } from '@/store/useOmniaStore';
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-const CATEGORIES: { id: AICategory, name: string, icon: React.ReactNode, hint: string }[] = [
-  { id: 'Reasoning', name: 'Reasoning', icon: <MessageSquare size={16} />, hint: "Logic and analytical chat" },
-  { id: 'Code', name: 'Code', icon: <Terminal size={16} />, hint: "Programming and debugging" },
-  { id: 'Image', name: 'Image', icon: <ImageIcon size={16} />, hint: "Generative visual art" },
-  { id: 'Video', name: 'Video', icon: <Video size={16} />, hint: "High-fidelity clips" },
-  { id: 'Audio', name: 'Audio', icon: <Music size={16} />, hint: "TTS and music synthesis" },
-  { id: 'Data', name: 'Data', icon: <Database size={16} />, hint: "Complex analysis" },
-  { id: 'File', name: 'File', icon: <FileText size={16} />, hint: "Knowledge ingestion" }
-];
-
-const MODES = [
-  { id: 'LOCAL', name: 'Sovereign Engine', detail: 'Local GPU (0ms)', icon: <Cpu size={14} />, color: 'emerald' },
-  { id: 'FREE_CLOUD', name: 'Public Cloud', detail: 'Queued (Pooled)', icon: <Globe size={14} />, color: 'blue' },
-  { id: 'PREMIUM', name: 'Priority Core', detail: 'Low Latency', icon: <Sparkles size={14} />, color: 'purple' },
-  { id: 'API_KEY', name: 'API Bypass', detail: 'Direct Access', icon: <Key size={14} />, color: 'amber' }
-];
-
-export default function Home() {
-  const { isAdmin, selectedCategory, setCategory, selectedModel, setModel, executionMode, setMode } = useOmniaStore();
+export default function LandingPage() {
   const router = useRouter();
-  const [query, setQuery] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { setCategory, setModel, isAdmin } = useOmniaStore();
+  const [selectedCat, setSelectedCat] = useState<AICategory>('Reasoning');
 
-  useEffect(() => {
-    if (!isAdmin) router.push('/login');
-  }, [isAdmin, router]);
+  const categories = [
+    { id: 'Reasoning' as AICategory, icon: MessageSquare, label: 'Reasoning', desc: 'Advanced LLM logic & analysis', color: 'text-blue-400' },
+    { id: 'Code' as AICategory, icon: Terminal, label: 'Software', desc: 'Elite programming & architecture', color: 'text-emerald-400' },
+    { id: 'Image' as AICategory, icon: ImageIcon, label: 'Visuals', desc: 'High-fidelity generative art', color: 'text-purple-400' },
+    { id: 'Data' as AICategory, icon: Database, label: 'Insight', desc: 'Real-time data orchestration', color: 'text-amber-400' },
+    { id: 'Audio' as AICategory, icon: Music, label: 'Acoustic', desc: 'Neural audio & voice synthesis', color: 'text-red-400' },
+    { id: 'Video' as AICategory, icon: Video, label: 'Motion', desc: 'Generative video sequences', color: 'text-indigo-400' },
+    { id: 'File' as AICategory, icon: FileText, label: 'Knowledge', desc: 'Deep document ingestion', color: 'text-sky-400' },
+  ];
 
-  if (!isAdmin) return null;
+  const handleLaunch = (cat: AICategory, model: string) => {
+    setCategory(cat);
+    setModel(model);
+    if (isAdmin) {
+      router.push('/chat');
+    } else {
+      router.push('/login');
+    }
+  };
 
   return (
-    <AppShell>
-      <div className="relative min-h-[calc(100vh-64px)] w-full flex flex-col items-center justify-center p-4 md:p-12 overflow-hidden selection:bg-blue-500/30">
+    <div className="min-h-screen bg-[#020203] text-[#F5F5F7] selection:bg-blue-500/30 font-sans overflow-x-hidden">
+      {/* Background Atmosphere */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[180px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/5 rounded-full blur-[160px] animate-pulse" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-50 mix-blend-overlay" />
+      </div>
 
-        {/* Cinematic Background */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[-10%] right-[10%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[200px] animate-pulse-soft" />
-          <div className="absolute bottom-[-10%] left-[10%] w-[50%] h-[50%] bg-purple-600/5 rounded-full blur-[180px] animate-pulse-soft" />
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-50 contrast-150 mix-blend-overlay" />
+      {/* Navigation */}
+      <nav className="relative z-50 flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
+        <div className="flex items-center gap-3 group cursor-pointer" onClick={() => router.push('/')}>
+          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-2xl transition-transform group-hover:rotate-[10deg]">
+            <span className="text-black font-black text-xl">Ω</span>
+          </div>
+          <span className="font-bold text-2xl tracking-tighter">OMNIA</span>
         </div>
 
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push(isAdmin ? '/chat' : '/login')}
+            className="bg-white text-black px-6 py-2.5 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all active:scale-95 shadow-xl shadow-white/10"
+          >
+            {isAdmin ? 'Dashboard' : 'Initialize Session'}
+          </button>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="relative z-10 pt-20 pb-40 px-6 max-w-7xl mx-auto flex flex-col items-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-5xl z-10 flex flex-col items-center"
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-16"
         >
-          {/* Hero Section */}
-          <div className="w-full mb-12 text-center flex flex-col items-center">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="w-16 h-16 rounded-3xl glass-premium flex items-center justify-center mb-8 shadow-2xl relative group cursor-pointer"
-            >
-              <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-700" />
-              <span className="text-white font-black text-2xl relative z-10">Ω</span>
-            </motion.div>
-
-            <h1 className="text-5xl md:text-[4.5rem] font-bold tracking-tight text-white mb-6 drop-shadow-2xl text-gradient leading-[1.1]">
-              Orchestrate Intelligence
-            </h1>
-            <p className="text-white/40 text-sm font-bold uppercase tracking-[0.4em] mb-4">Core V1.0 - Sovereign Protocol</p>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8">
+            <Sparkles size={14} className="text-blue-400" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/80">The 2026 AI Operating System</span>
           </div>
-
-          {/* Unified Command Center */}
-          <div className={cn(
-            "w-full relative transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
-            isFocused ? "scale-[1.02]" : "scale-100"
-          )}>
-            <div className={cn(
-              "absolute -inset-0.5 bg-gradient-to-r from-blue-600/20 via-white/10 to-purple-600/20 rounded-[2.5rem] blur-2xl transition-opacity duration-1000",
-              isFocused ? "opacity-100" : "opacity-0"
-            )} />
-
-            <div className={cn(
-              "relative glass-premium rounded-[2.5rem] p-4 flex flex-col transition-all duration-500",
-              isFocused ? "border-white/20 ring-1 ring-white/10" : "border-white/5"
-            )}>
-
-              <textarea
-                ref={textareaRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                placeholder={"What will you deploy today?"}
-                style={{ resize: 'none' }}
-                className="w-full bg-transparent border-none outline-none min-h-[160px] text-xl md:text-2xl font-medium placeholder:text-white/10 text-white p-6 focus:ring-0 selection:bg-white/20 transition-all"
-              />
-
-              {/* Functional Dashboard Row */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4 pb-4 pt-4 border-t border-white/[0.04]">
-
-                {/* Horizontal Category Scroll */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 no-scrollbar max-w-full md:max-w-[80%] px-1">
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setCategory(cat.id)}
-                      title={cat.hint}
-                      className={cn(
-                        "flex items-center gap-2.5 px-5 py-3 rounded-2xl text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-300 transform active:scale-95 group",
-                        selectedCategory === cat.id
-                          ? "bg-white text-black shadow-2xl scale-105"
-                          : "bg-white/[0.03] text-white/40 border border-white/5 hover:bg-white/5 hover:text-white hover:border-white/20"
-                      )}
-                    >
-                      <span className={cn(selectedCategory === cat.id ? "text-black" : "text-white/20 group-hover:text-white/60")}>{cat.icon}</span>
-                      {cat.name}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Execution Trigger */}
-                <div className="flex items-center gap-4 self-end md:self-auto">
-                  <div className="hidden lg:flex flex-col items-end mr-2">
-                    <span className="text-[9px] font-black text-white/10 uppercase tracking-widest leading-none mb-1">Context Window</span>
-                    <span className="text-[10px] font-mono text-white/20 leading-none">128K Ready</span>
-                  </div>
-                  <button
-                    disabled={!query.trim()}
-                    className="h-14 w-14 rounded-[1.5rem] bg-white text-black flex items-center justify-center shadow-2xl hover:bg-blue-50 hover:scale-105 active:scale-90 transition-all duration-300 disabled:opacity-10 disabled:grayscale"
-                  >
-                    <ArrowRight size={22} strokeWidth={3} />
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Runtime Orchestration Settings */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
-            {/* Configuration Pill */}
-            <div className="flex items-center gap-4 px-6 py-4 rounded-3xl glass border-white/5 shadow-2xl">
-
-              {/* Model Picker */}
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-white/5 text-white/20"><Zap size={14} /></div>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => setModel(e.target.value)}
-                  className="appearance-none bg-transparent text-xs font-black uppercase tracking-[0.2em] text-white outline-none cursor-pointer pr-4"
-                >
-                  {CATEGORY_MODELS[selectedCategory]?.map((m) => (
-                    <option key={m} value={m} className="bg-[#0A0A0B] text-white">{m}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="w-px h-4 bg-white/10" />
-
-              {/* Mode Picker */}
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-white/5 text-white/20"><Shield size={14} /></div>
-                <select
-                  value={executionMode}
-                  onChange={(e) => setMode(e.target.value as any)}
-                  className="appearance-none bg-transparent text-xs font-black uppercase tracking-[0.2em] text-white outline-none cursor-pointer pr-4"
-                >
-                  {MODES.map((m) => (
-                    <option key={m.id} value={m.id} className="bg-[#0A0A0B] text-white">{m.name} ({m.color})</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* System Telemetry Metadata */}
-          <div className="mt-20 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-20 pointer-events-none">
-            <div className="flex items-center gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Node-001: Operational</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Engine: 8.4.1.v26</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Status: Sovereign-Verified</span>
-            </div>
-          </div>
-
+          <h1 className="text-6xl md:text-[5rem] font-bold tracking-tightest leading-tight mb-8">
+            How can <span className="text-gradient">OMNIA</span> help today?
+          </h1>
         </motion.div>
-      </div>
-    </AppShell>
+
+        {/* Categorical Engine Selector */}
+        <div className="w-full max-w-4xl space-y-12">
+          {/* Direct Category Icons */}
+          <div className="flex flex-wrap justify-center gap-4">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCat(cat.id)}
+                className={cn(
+                  "flex flex-col items-center gap-3 p-6 rounded-[2rem] transition-all min-w-[120px] group border",
+                  selectedCat === cat.id
+                    ? "bg-white/10 border-white/20 shadow-2xl scale-110"
+                    : "bg-white/[0.02] border-white/5 hover:bg-white/5"
+                )}
+              >
+                <cat.icon size={24} className={cn("transition-colors", selectedCat === cat.id ? cat.color : "text-white/20 group-hover:text-white/40")} />
+                <span className={cn("text-[10px] font-black uppercase tracking-widest", selectedCat === cat.id ? "text-white" : "text-white/20")}>{cat.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Model Preview & Launch */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedCat}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="glass-premium rounded-[3rem] p-10 flex flex-col items-center border border-white/10 shadow-3xl"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                {CATEGORY_MODELS[selectedCat].map((model) => (
+                  <div
+                    key={model}
+                    onClick={() => handleLaunch(selectedCat, model)}
+                    className="group p-6 rounded-3xl bg-white/[0.03] border border-white/5 hover:border-white/20 transition-all cursor-pointer flex flex-col gap-4 active:scale-95"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="p-2 rounded-xl bg-white/5 text-white/40 group-hover:text-white transition-colors">
+                        <Zap size={16} />
+                      </div>
+                      <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-[8px] font-black uppercase tracking-widest">Active Node</div>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg leading-tight mb-1 group-hover:text-blue-400 transition-colors">{model}</h4>
+                      <p className="text-[10px] text-white/20 font-medium uppercase tracking-widest">Latency: 0.1ms // 128k Context</p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-white/0 group-hover:text-white transition-all text-[9px] font-black uppercase tracking-widest translate-x-[-10px] group-hover:translate-x-0">
+                      Launch Instance <ArrowRight size={12} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Global Stats Meta */}
+        <div className="mt-32 flex gap-12 text-[10px] font-black text-white/10 uppercase tracking-[0.4em]">
+          <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-emerald-500" /> S0-West: Operational</div>
+          <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-emerald-500" /> S1-East: Operational</div>
+          <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-blue-500" /> Vercel-Edge: Connected</div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="relative z-10 py-12 px-8 border-t border-white/5 bg-black/40 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-[9px] font-black text-white/10 uppercase tracking-[0.2em]">
+          <div className="flex items-center gap-2">OMNIA PLATFORM // 2026.15.42</div>
+          <div className="flex gap-10">
+            <a href="#" className="hover:text-white transition-colors">Twitter</a>
+            <a href="#" className="hover:text-white transition-colors">GitHub</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

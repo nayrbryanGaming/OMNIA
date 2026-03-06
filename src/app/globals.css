@@ -39,6 +39,14 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .shadow-3xl {
+    box-shadow: 0 35px 120px -15px rgba(0, 0, 0, 0.9);
+  }
+
+  .tracking-tightest {
+    letter-spacing: -0.05em;
+  }
 }
 
 /* Custom Phosphor/Gemini Glows */
@@ -65,4 +73,20 @@
 
 .animate-pulse-soft {
   animation: pulse-soft 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+
+  50% {
+    opacity: 0.05;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
 }

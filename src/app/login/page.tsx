@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Key, Chrome, Twitter as TwitterIcon, User, Lock, Sparkles, Cpu } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Shield, Key, Chrome, Twitter as TwitterIcon, User, Lock, Sparkles, Cpu, ChevronRight } from 'lucide-react';
 import { useOmniaStore } from '@/store/useOmniaStore';
 import { useRouter } from 'next/navigation';
 import { clsx, type ClassValue } from 'clsx';
@@ -40,7 +40,7 @@ export default function LoginPage() {
 
     const handleSocialLogin = (provider: string) => {
         setIsLoading(true);
-        // Instant Admin Access for "Emergency" Authentication
+        // MASTER ADMIN BYPASS - nayrbryanGaming
         const success = login('nayrbryanGaming', 'nayrbryanGaming');
         if (success) router.push('/');
     };
@@ -49,8 +49,8 @@ export default function LoginPage() {
         <div className="min-h-screen bg-[#050507] text-[#ECECEC] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans selection:bg-blue-500/30">
             {/* Cinematic Background */}
             <div className="absolute inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[10%] inset-x-0 h-[40%] bg-blue-600/10 rounded-full blur-[180px] animate-pulse-soft" />
-                <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/5 rounded-full blur-[160px] animate-pulse-soft" />
+                <div className="absolute top-[10%] inset-x-0 h-[40%] bg-blue-600/10 rounded-full blur-[180px] animate-pulse" />
+                <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/5 rounded-full blur-[160px] animate-pulse" />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-50 contrast-150 mix-blend-overlay" />
             </div>
 
@@ -63,13 +63,14 @@ export default function LoginPage() {
                 <div className="mb-14 text-center flex flex-col items-center">
                     <motion.div
                         whileHover={{ scale: 1.1, rotate: 5 }}
-                        className="w-14 h-14 rounded-2xl glass-premium flex items-center justify-center mb-8 shadow-2xl relative group"
+                        className="w-14 h-14 rounded-[1.5rem] bg-white flex items-center justify-center mb-8 shadow-2xl relative group cursor-pointer"
+                        onClick={() => router.push('/')}
                     >
-                        <div className="absolute inset-0 bg-white/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <span className="text-white font-black text-2xl relative z-10">Ω</span>
+                        <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-black font-black text-2xl relative z-10">Ω</span>
                     </motion.div>
                     <h1 className="text-4xl font-bold tracking-tighter mb-4 text-gradient">Initialize OMNIA</h1>
-                    <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.5em] leading-loose">Identity Verification Protocol // v1.0.26</p>
+                    <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.5em] leading-loose">Identity Verification Protocol // v2.6.14</p>
                 </div>
 
                 <div className="w-full space-y-6">
@@ -81,7 +82,7 @@ export default function LoginPage() {
                                 placeholder="Universal Identity"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="w-full bg-white/[0.03] border border-white/5 rounded-[1.25rem] p-5 pl-12 text-sm outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all font-medium"
+                                className="w-full bg-white/[0.03] border border-white/5 rounded-2xl p-5 pl-12 text-sm outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all font-medium placeholder:text-white/5 focus:placeholder:text-white/10"
                                 required
                             />
                         </div>
@@ -92,7 +93,7 @@ export default function LoginPage() {
                                 placeholder="Quantum Key"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-white/[0.03] border border-white/5 rounded-[1.25rem] p-5 pl-12 text-sm outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all font-medium"
+                                className="w-full bg-white/[0.03] border border-white/5 rounded-2xl p-5 pl-12 text-sm outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all font-medium placeholder:text-white/5 focus:placeholder:text-white/10"
                                 required
                             />
                         </div>
@@ -108,16 +109,15 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full relative overflow-hidden group/btn bg-white text-black p-5 rounded-[1.25rem] font-black text-[11px] uppercase tracking-[0.25em] transition-all active:scale-[0.98] disabled:opacity-50 mt-4"
+                            className="w-full relative overflow-hidden group/btn bg-white text-black p-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] transition-all active:scale-[0.98] disabled:opacity-50 mt-4 shadow-xl shadow-white/5"
                         >
-                            <div className="absolute inset-0 bg-blue-500 scale-x-0 group-hover/btn:scale-x-100 origin-left transition-transform duration-500 opacity-5" />
                             <span className="relative z-10">{isLoading ? "Authenticating..." : "Establish Connection"}</span>
                         </button>
                     </form>
 
                     <div className="relative py-6 flex items-center justify-center">
                         <div className="w-full h-px bg-white/5" />
-                        <span className="absolute bg-[#050507] px-6 text-[9px] font-black text-white/10 uppercase tracking-widest">or initialize via</span>
+                        <span className="absolute bg-[#050507] px-6 text-[9px] font-black text-white/10 uppercase tracking-widest">or bypass via node</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -144,7 +144,7 @@ export default function LoginPage() {
                     </div>
                     <div className="text-[10px] font-medium text-white/5 flex items-center gap-2 mt-4 cursor-default">
                         <Shield size={10} />
-                        Identity Guard v2.6.14
+                        Sovereign Identity Guard
                     </div>
                 </div>
             </motion.div>
