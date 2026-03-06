@@ -30,11 +30,10 @@ export default function LoginPage() {
 
     const handleSocialLogin = (provider: string) => {
         setIsLoading(true);
-        // Simulate immediate success for the admin account
-        setTimeout(() => {
-            login('nayrbryanGaming', 'nayrbryanGaming');
+        const success = login('nayrbryanGaming', 'nayrbryanGaming');
+        if (success) {
             router.push('/');
-        }, 800);
+        }
     };
 
     return (

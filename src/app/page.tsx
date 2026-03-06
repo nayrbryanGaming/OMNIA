@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MessageSquare,
   Image as ImageIcon,
@@ -11,12 +11,13 @@ import {
   Shield,
   Zap,
   Cpu,
-  ArrowRight
+  ArrowRight,
+  Database,
+  FileText
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useOmniaStore, CATEGORY_MODELS } from '@/store/useOmniaStore';
+import { motion } from 'framer-motion';
+import { useOmniaStore, CATEGORY_MODELS, AICategory } from '@/store/useOmniaStore';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { AppShell } from '@/components/shell/AppShell';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -25,42 +26,21 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const CATEGORIES = [
-  {
-    id: 'text',
-    name: 'Text & Reasoning',
-    icon: <MessageSquare className="w-6 h-6" />,
-    description: 'Chat, analysis, and coding assistance.',
-    models: ['Gemini 2.0 Flash', 'Grok-3', 'GPT-4o', 'Llama 3.1 405B']
-  },
-  {
-    id: 'image',
-    name: 'Image Generation',
-    icon: <ImageIcon className="w-6 h-6" />,
-    description: 'Create stunning visuals and art.',
-    models: ['Imagen 3', 'Flux.1 (Dev)', 'Stable Diffusion 3.5', 'Midjourney v6.1']
-  },
-  {
-    id: 'audio',
-    name: 'Audio & Music',
-    icon: <Music className="w-6 h-6" />,
-    description: 'TTS, STT, and music creation.',
-    models: ['Suno v4', 'Udio v1.5', 'ElevenLabs Turbo', 'Whisper v3']
-  },
-  {
-    id: 'video',
-    name: 'Video Animation',
-    icon: <Video className="w-6 h-6" />,
-    description: 'Generate high-fidelity video clips.',
-    models: ['Luma Dream Machine', 'Runway Gen-3 Alpha', 'Sora (Waitlist)', 'Kling AI']
-  }
+const CATEGORIES: { id: AICategory, name: string, icon: React.ReactNode }[] = [
+  { id: 'Reasoning', name: 'Reasoning', icon: <MessageSquare className="w-4 h-4" /> },
+  { id: 'Code', name: 'Code', icon: <Cpu className="w-4 h-4" /> },
+  { id: 'Image', name: 'Image', icon: <ImageIcon className="w-4 h-4" /> },
+  { id: 'Video', name: 'Video', icon: <Video className="w-4 h-4" /> },
+  { id: 'Audio', name: 'Audio', icon: <Music className="w-4 h-4" /> },
+  { id: 'Data', name: 'Data', icon: <Database className="w-4 h-4" /> },
+  { id: 'File', name: 'Documents', icon: <FileText className="w-4 h-4" /> }
 ];
 
 const MODES = [
-  { id: 'local', name: 'Local Compute', icon: <Cpu className="w-4 h-4" />, color: 'text-green-400' },
-  { id: 'cloud-free', name: 'Free Cloud (Queued)', icon: <Zap className="w-4 h-4" />, color: 'text-blue-400' },
-  { id: 'cloud-premium', name: 'Premium Cloud', icon: <Sparkles className="w-4 h-4" />, color: 'text-purple-400' },
-  { id: 'api', name: 'API Key (BYOK)', icon: <Shield className="w-4 h-4" />, color: 'text-amber-400' }
+  { id: 'LOCAL', name: 'Local Compute (0ms)', icon: <Cpu className="w-4 h-4" /> },
+  { id: 'FREE_CLOUD', name: 'Free Cloud (Queue)', icon: <Zap className="w-4 h-4" /> },
+  { id: 'PREMIUM', name: 'Premium Cloud', icon: <Sparkles className="w-4 h-4" /> },
+  { id: 'API_KEY', name: 'Your API Key', icon: <Shield className="w-4 h-4" /> }
 ];
 
 export default function Home() {
@@ -78,105 +58,112 @@ export default function Home() {
 
   return (
     <AppShell>
-      <div className="min-h-full w-full flex flex-col items-center justify-center p-6 md:p-12 relative overflow-hidden">
-        {/* Aesthetic Background Elements */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[10%] left-[20%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[150px]" />
+      <div className="min-h-[calc(100vh-theme(spacing.16))] w-full flex flex-col items-center justify-center p-4 md:p-8 relative selection:bg-white/20">
+
+        {/* Subtle Background Elements */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
+          <div className="w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-[120px] absolute mix-blend-screen" />
         </div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-3xl z-10 flex flex-col items-center"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-4xl z-10 flex flex-col items-center"
         >
-          {/* Centered Command Bar - Gemini Style */}
-          <div className="w-full mb-12 text-center space-y-4">
-            <h1 className="text-4xl md:text-6xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/40 mb-2">
-              What can OMNIA do for you?
+          {/* Main Greeting */}
+          <div className="w-full mb-10 text-center">
+            <h1 className="text-4xl md:text-[3.5rem] font-medium tracking-tight text-white mb-4 drop-shadow-md">
+              How can I help you today?
             </h1>
-            <p className="text-white/20 text-xs font-black uppercase tracking-[0.4em]">Universal Intelligence Interface</p>
+            <p className="text-[#ECECEC]/60 text-sm font-medium tracking-wide">Enter a prompt or choose an AI capability block below.</p>
           </div>
 
-          <div className="w-full relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
-            <div className="relative bg-[#0A0A0B]/80 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] p-2 pr-6 flex items-center shadow-2xl transition-all hover:border-white/10">
-              <div className="flex-1 px-8">
-                <input
-                  type="text"
-                  placeholder="Ask OMNIA anything..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="w-full bg-transparent border-none outline-none py-6 text-xl font-medium placeholder:text-white/10 text-white"
-                />
-              </div>
-              <button className="h-14 w-14 rounded-full bg-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all">
-                <ArrowRight className="text-black" size={24} />
-              </button>
-            </div>
-          </div>
+          {/* The Prompt Block (Gemini/Grok Style) */}
+          <div className="w-full relative group mb-8">
+            <div className="absolute -inset-0.5 bg-gradient-to-br from-white/10 to-transparent rounded-3xl blur-md opacity-0 group-focus-within:opacity-100 transition duration-700 pointer-events-none" />
+            <div className="relative bg-[#0F0F12]/80 backdrop-blur-3xl border border-white/[0.08] hover:border-white/[0.15] rounded-[2rem] p-3 flex flex-col shadow-2xl transition-all duration-300 group-focus-within:border-white/30 group-focus-within:bg-[#0F0F12]">
 
-          {/* Quick Action Categories */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-            {CATEGORIES.map((cat) => (
-              <motion.button
-                key={cat.id}
-                whileHover={{ y: -4, backgroundColor: 'rgba(255,255,255,0.03)' }}
-                onClick={() => setCategory(cat.name.split(' ')[0] as any)}
-                className={cn(
-                  "p-6 rounded-3xl border text-center transition-all flex flex-col items-center gap-4",
-                  selectedCategory.toLowerCase() === cat.id
-                    ? "bg-white/5 border-white/10"
-                    : "bg-transparent border-white/5"
-                )}
-              >
-                <div className={cn(
-                  "p-3 rounded-2xl",
-                  selectedCategory.toLowerCase() === cat.id ? "bg-white text-black" : "bg-white/5 text-white/40"
-                )}>
-                  {cat.icon}
+              <textarea
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={"Ask OMNIA anything..."}
+                style={{ resize: 'none' }}
+                className="w-full bg-transparent border-none outline-none min-h-[140px] text-lg font-normal placeholder:text-white/20 text-white p-4 focus:ring-0"
+              />
+
+              {/* Action Bar Inside Input Block */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 pt-2 gap-4 border-t border-white/[0.04]">
+
+                {/* Capabilities / Categories List */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0 no-scrollbar max-w-full md:max-w-[85%] px-1">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setCategory(cat.id)}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-200",
+                        selectedCategory === cat.id
+                          ? "bg-white text-black shadow-md scale-[1.02]"
+                          : "bg-transparent text-white/50 hover:bg-white/5 hover:text-white/80"
+                      )}
+                    >
+                      <span className={cn(selectedCategory === cat.id ? "opacity-100" : "opacity-70")}>{cat.icon}</span>
+                      {cat.name}
+                    </button>
+                  ))}
                 </div>
-                <span className="text-xs font-bold uppercase tracking-widest text-white/60">{cat.name.split(' ')[0]}</span>
-              </motion.button>
-            ))}
+
+                {/* Submit button */}
+                <button
+                  disabled={!query.trim()}
+                  className="h-10 w-10 shrink-0 self-end md:self-auto rounded-full bg-white flex items-center justify-center shadow-md hover:bg-gray-200 transition-all disabled:opacity-20 disabled:hover:bg-white"
+                >
+                  <ArrowRight className="text-black" size={18} />
+                </button>
+              </div>
+
+            </div>
           </div>
 
-          {/* Execution & Model Strip */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
-            <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.02] border border-white/5 backdrop-blur-xl">
-              <Cpu size={14} className="text-white/20" />
-              <select
-                value={executionMode}
-                onChange={(e) => setMode(e.target.value as any)}
-                className="bg-transparent text-sm font-bold text-white/60 uppercase tracking-widest outline-none cursor-pointer"
-              >
-                {MODES.map(m => (
-                  <option key={m.id} value={m.id.toUpperCase().replace('-', '_')} className="bg-[#0A0A0A]">{m.name}</option>
-                ))}
-              </select>
+          {/* Model & Runtime Settings (Below the Input Block) */}
+          <div className="w-full flex flex-wrap items-center justify-center gap-3">
+            <div className="flex items-center gap-3 text-white/40 text-xs font-semibold mr-2 uppercase tracking-wider">
+              Deploying to
             </div>
 
-            <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.02] border border-white/5 backdrop-blur-xl">
-              <Sparkles size={14} className="text-white/20" />
+            {/* Model Selector */}
+            <div className="relative group">
               <select
                 value={selectedModel}
                 onChange={(e) => setModel(e.target.value)}
-                className="bg-transparent text-sm font-bold text-white/60 uppercase tracking-widest outline-none cursor-pointer"
+                className="appearance-none bg-[#141417] border border-white-[0.05] shadow-sm rounded-xl px-4 py-2.5 pr-10 text-sm font-medium text-white/90 hover:border-white/20 transition-all outline-none cursor-pointer"
               >
-                {CATEGORY_MODELS[selectedCategory].map(m => (
-                  <option key={m} value={m} className="bg-[#0A0A0A]">{m}</option>
+                {CATEGORY_MODELS[selectedCategory]?.map((m) => (
+                  <option key={m} value={m}>{m}</option>
                 ))}
               </select>
+              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-white/40 pointer-events-none w-4 h-4" />
+            </div>
+
+            <div className="text-white/20 text-xs">via</div>
+
+            {/* Mode Selector */}
+            <div className="relative group">
+              <select
+                value={executionMode}
+                onChange={(e) => setMode(e.target.value as any)}
+                className="appearance-none bg-[#141417] border border-white-[0.05] shadow-sm rounded-xl px-4 py-2.5 pr-10 text-sm font-medium text-white/90 hover:border-white/20 transition-all outline-none cursor-pointer"
+              >
+                {MODES.map((m) => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
+              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-white/40 pointer-events-none w-4 h-4" />
             </div>
           </div>
-        </motion.div>
 
-        {/* System Breadcrumbs */}
-        <div className="absolute bottom-12 flex items-center gap-10 text-[10px] font-black text-white/10 uppercase tracking-[0.4em]">
-          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" /> Node-001: Online</span>
-          <span>Uptime: 99.9%</span>
-          <span>Encryption: AES-4096</span>
-        </div>
+        </motion.div>
       </div>
     </AppShell>
   );

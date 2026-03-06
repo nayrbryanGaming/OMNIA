@@ -1,22 +1,41 @@
-# OMNIA: THE SOVEREIGN INTELLIGENCE ENGINE
+# OMNIA
 
-**Intelligence is the new manifest destiny. Sovereignty is the only defense.**
+The unified intelligence layer.
 
-OMNIA is the unified command layer for the fragmented AI era. We have built the absolute interface that returns agency to the individual. No compromise. No vendor lock-in.
+OMNIA is an open-source, sovereign, and modular platform designed to orchestrate all AI models, modalities, and execution environments through a single, highly optimized interface.
 
-## 🌌 THE MASTER PLAN
-1.  **UNIVERSAL ORCHESTRATION**: Direct command of any compute node—Local GPUs, Sovereign Clouds, or Proprietary APIs.
-2.  **MODAL NEUTRALITY**: Text, Image, Audio, Video. One flow. Infinite possibilities.
-3.  **TRUSTLESS PRIVACY**: Local-first architecture ensures your data remains yours unless you authorize otherwise.
+## Architecture
 
-## ⚡ PERFORMANCE SPECS
-- **CORE**: Next.js 16 (Optimized for Edge Inference)
-- **DESIGN**: Dark-First Minimalist (Quantum Glassmorphism)
-- **LOGIC**: Zustand-driven persistent state.
-- **SPEED**: Zero-latency UI thread.
+Our foundation relies on strict decoupling of interface, orchestration, and compute:
+- **Universal Orchestration**: Fluid routing across local self-hosted models, shared cloud queues, premium APIs, and user-provided API keys.
+- **Modality Agnostic**: Unified control plane for text, image, audio, and video generation.
+- **Local-First Trust**: By default, compute is sovereign. Data never leaves the client unless explicitly routed to external APIs.
+
+## Deployment
+
+OMNIA is architected for edge deployment on Vercel with zero cold-start overhead for the core UI.
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## System Requirements
+
+- Node.js 20+
+- Vercel CLI (for deployment)
+- Optional: Required hardware for local inference capabilities (16GB RAM minimum for 7B parameter models).
+
+## Security & Privacy
+
+OMNIA maintains a strict client-side boundary for API keys. We do not store, log, or proxy your credentials through our backend unless explicitly configured for shared cloud features. All proprietary API communication happens directly from the client to the provider or via secure serverless functions.
 
 ---
-**OMNIA is now the standard for sovereign intelligence.**
-[Access Core](https://omnia.vercel.app)
 
-*© 2026 OMNIA Foundation. Distributed under Apache 2.0.*
+**OMNIA Foundation** | Distributed under Apache 2.0.
